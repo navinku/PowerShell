@@ -1,12 +1,15 @@
-$source = "C:\Source\" # Replace with your source folder path
-$destination = "C:\Destination\" # Replace with your destination folder path
-$dateFormat = 'yyyyMMdd' # Prerequisite - define date format
-$yesterday = (Get-Date).AddDays(-1).ToString('ddMMyyyy')
-$files = Get-ChildItem -Path $source -File | Where-Object { $_.LastWriteTime.Date -eq $yesterday }
+$sourceFolderPath = "C:\Source\" # Replace with your source folder path
+$destinationFolderPath = "C:\Destination\" # Replace with your destination folder path
 
-foreach ($file in $files) {
-    $destinationFile = Join-Path -Path $destination -ChildPath $file.Name
-    Move-Item -Path $file.FullName -Destination $destinationFile -Force
+# Get the date for yesterday
+$yesterday = (Get-Date).AddDays(-1).ToString("yyyyMMdd")
+
+# Get all .zip files in the source folder that were modified yesterday
+$filesToMove = Get-ChildItem -Path $sourceFolderPath -Filter "*.zip" | Where-Object {$_.LastWriteTime.ToString("yyyyMMdd") -eq $yesterday}
+
+# Loop through the files and move them to the destination folder
+foreach ($file in $filesToMove) {
+    $destinationFilePath = Join-Path $destinationFolderPath $file.Name
+    $destinationFile = New-Object System.IO.FileInfo($destinationFilePath)
+    [System.IO.File]::Move($file.FullName, $destinationFile.FullName)
 }
-
-Write-Output "Moved $(($files | Measure-Object).Count) files from $source to $destination."
