@@ -1,8 +1,7 @@
 param (
    [string] $ParentFolder = "S:\ParentFolder\",
-   [string[]] $FileSpecs = @("*.sqlaudit"), 
-   $Filter = { $_.LastWriteTime -lt (Get-Date).AddDays(-1)},
-   [string] $ZipPath = "S:\DestinationPath\archive-$(get-date -f yyyy-MM-dd).zip", 
+   $Filter = { $_.LastWriteTime -lt (Get-Date).AddHour(-1)},
+   [string] $ZipPath = "S:\Destination\archive-$(get-date -f yyyy-MM-dd).zip", 
    [System.IO.Compression.CompressionLevel]$CompressionLevel = [System.IO.Compression.CompressionLevel]::Fastest, 
    [switch] $DeleteAfterArchiving = $true,
    [switch] $Verbose = $true,
@@ -10,13 +9,18 @@ param (
 )
 @( 'System.IO.Compression','System.IO.Compression.FileSystem') | % { [void][System.Reflection.Assembly]::LoadWithPartialName($_) }
 Push-Location $ParentFolder
-$FileList = (Get-ChildItem $FileSpecs -File -Recurse:$Recurse  | Where-Object $Filter)
+$FileList = (Get-ChildItem -File -Recurse:$Recurse  | Where-Object $Filter)
 $totalcount = $FileList.Count
 $countdown = $totalcount
 $skipped = @()
+$batchSize = 60
+$processedCount = 5
 Try{
     $WriteArchive = [IO.Compression.ZipFile]::Open( $ZipPath, [System.IO.Compression.ZipArchiveMode]::Update)
     ForEach ($File in $FileList){
+        if ($processedCount -ge $batchSize) {
+            break
+        }
         Write-Progress -Activity "Archiving files" -Status  "Archiving file $($totalcount - $countdown) of $totalcount : $($File.Name)"  -PercentComplete (($totalcount - $countdown)/$totalcount * 100)
         $ArchivedFile = $null
         $RelativePath = (Resolve-Path -LiteralPath "$($File.FullName)" -Relative) -replace '^.\\'
@@ -47,7 +51,8 @@ Try{
                 Write-Warning "$($File.FullName) could not be deleted. `n $($_.Exception.Message)"
             }
         } 
-        $countdown = $countdown -1
+        $countdown = $countdown - 1
+        $processedCount++
     }
 }Catch [Exception]{
     Write-Error $_.Exception
