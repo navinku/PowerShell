@@ -1,0 +1,28 @@
+1. Open your PowerShell profile script. You can do this by running the following command in PowerShell:
+```powershell
+
+notepad $PROFILE
+
+```
+If the profile script doesn't exist, it will prompt you to create one. Press "Yes" to create it.
+
+2. Add the following function to your profile script:
+```powershell
+
+function prompt {
+    "$('>' * ($nestedPromptLevel + 1)) "
+}
+
+```
+This function overrides the default `prompt` function and sets a simple custom prompt with the `>` character repeated based on the nested prompt level.
+
+3. Save and close the profile script.
+
+4. Restart your PowerShell session or run the following command to reload the profile:
+```powershell
+
+. $PROFILE
+
+```
+
+After making these changes, your PowerShell prompt will display a simplified prompt without the full path. It will show the `>` character repeated based on the nested prompt level. For example, if you're at the root of your user directory, the prompt will appear as `> `.
