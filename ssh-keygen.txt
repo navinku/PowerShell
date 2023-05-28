@@ -1,0 +1,21 @@
+Open PowerShell or Command Prompt on your Windows PC.
+
+Run the following command to generate an SSH key pair:
+
+powershell
+Copy code
+
+ssh-keygen
+
+If you want to specify a different directory or file name for the key pair, you can add the -f option followed by the desired path and file name. For example:
+
+powershell
+Copy code
+
+ssh-keygen -f C:\path\to\custom\key
+
+By default, the SSH key pair will be saved in the %USERPROFILE%\.ssh directory with the names id_rsa for the private key and id_rsa.pub for the public key.
+
+The ssh-keygen command will prompt you to enter a passphrase for the key. Passphrases add an extra layer of security to your SSH key. You can choose to enter a passphrase or leave it blank for no passphrase. Press Enter after making your choice.
+
+Once the key generation process is complete, your public key will be saved as a file with the .pub extension. By default, it will be named id_rsa.pub in the %USERPROFILE%\.ssh directory.
